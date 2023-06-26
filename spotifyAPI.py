@@ -9,13 +9,15 @@ Library script for interacting with Spotify data
 # imports
 import requests
 from secret import secret
+from urllib.parse import urlencode
+import webbrowser
 
 # globals
 CLIENT_ID = secret.get('CLIENT_ID')
 CLIENT_SECRET = secret.get('CLIENT_SECRET')
 REDIRECT_URI = "http://localhost:3000"
 #AUTH_URL = "https://accounts.spotify.com/api/token"
-AUTH_URL = "https://accounts.spotify.com/authorize/"
+AUTH_URL = "https://accounts.spotify.com/authorize?"
 BASE_URL = "https://api.spotify.com/v1/"
 
 class spotifyAPI:
@@ -42,15 +44,14 @@ class spotifyAPI:
     def request_user_auth():
         ## TO-DO
         endpoint = AUTH_URL
-        params = {
+        params  = {
             'client_id': CLIENT_ID,
             'response_type': 'code',
             'redirect_uri': 'http://localhost:3000/callback',
             'scope': 'user-read-private'
         }
-        resp = requests.get(endpoint, params)
-        
-        return resp
+        #resp = requests.get(endpoint, params)
+        webbrowser.open(AUTH_URL + urlencode(params))
 
     def get_access_token(auth_code):
         ## TO-DO
