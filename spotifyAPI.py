@@ -11,12 +11,14 @@ import requests
 from secret import secret
 from urllib.parse import urlencode
 import webbrowser
+from selenium import webdriver
+import app
 
 # globals
 CLIENT_ID = secret.get('CLIENT_ID')
 CLIENT_SECRET = secret.get('CLIENT_SECRET')
-REDIRECT_URI = "http://localhost:3000"
-#AUTH_URL = "https://accounts.spotify.com/api/token"
+REDIRECT_URI = "http://localhost:3000/callback"
+TOKEN_URL = "https://accounts.spotify.com/api/token"
 AUTH_URL = "https://accounts.spotify.com/authorize?"
 BASE_URL = "https://api.spotify.com/v1/"
 
@@ -42,20 +44,37 @@ class spotifyAPI:
         return access_token
     '''
     def request_user_auth():
-        ## TO-DO
         endpoint = AUTH_URL
         params  = {
             'client_id': CLIENT_ID,
             'response_type': 'code',
-            'redirect_uri': 'http://localhost:3000/callback',
+            'redirect_uri': REDIRECT_URI,
             'scope': 'user-read-private'
         }
-        #resp = requests.get(endpoint, params)
-        webbrowser.open(AUTH_URL + urlencode(params))
+        webbrowser.open(endpoint + urlencode(params))
+        
+        auth_code = ""
+        return auth_code
+    
+    ## i believe it will be easier to redirect the auth code recieved here directly to the get_access_token endpoint in app.py
+    
 
+    ## super fucked rn -- throws a 400 malformed request // see above comment on redirect
     def get_access_token(auth_code):
-        ## TO-DO
-        return None
+        endpoint = TOKEN_URL
+        params = {
+            'grant_type': 'authorization_code',
+            'code': auth_code,
+            'redirect_uri': REDIRECT_URI
+        }
+
+        headers = {
+        'Authorization': 'Basic ' + CLIENT_SECRET + ":" + CLIENT_ID,
+        'Content-Type': 'application/x-www-form-urlencoded'
+        }
+
+        resp = requests.post(endpoint, params=params, headers=headers)
+        return resp
     
     def get_user_data(access_token):
         endpoint = BASE_URL + 'me/'
