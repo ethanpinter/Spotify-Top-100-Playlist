@@ -1,2 +1,5 @@
 secret.py
 tests.py
+__pycache__
+request.log
+response.log

@@ -11,8 +11,10 @@ import requests
 from secret import secret
 from urllib.parse import urlencode
 import webbrowser
-from selenium import webdriver
-import app
+import base64
+import json
+import linecache
+import os
 
 # globals
 CLIENT_ID = secret.get('CLIENT_ID')
@@ -44,22 +46,25 @@ class spotifyAPI:
         return access_token
     '''
     def request_user_auth():
-        endpoint = AUTH_URL
+        chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe %s"
         params  = {
             'client_id': CLIENT_ID,
             'response_type': 'code',
             'redirect_uri': REDIRECT_URI,
             'scope': 'user-read-private'
         }
-        webbrowser.open(endpoint + urlencode(params))
+        url = AUTH_URL + urlencode(params)
+        webbrowser.get(chrome_path).open(url)      
+        ## read log logic goes here, return auth code
+        # read log file then delete when finished
+        #os.system("taskkill /im chrome.exe /f")
+        line = linecache.getline('request.data', 7)
+        os.remove('response.data')
+        os.remove('request.data')
+        split = line.split("?")
+        auth_code = split[1]
+        return auth_code[5:-3]
         
-        auth_code = ""
-        return auth_code
-    
-    ## i believe it will be easier to redirect the auth code recieved here directly to the get_access_token endpoint in app.py
-    
-
-    ## super fucked rn -- throws a 400 malformed request // see above comment on redirect
     def get_access_token(auth_code):
         endpoint = TOKEN_URL
         params = {
@@ -67,14 +72,15 @@ class spotifyAPI:
             'code': auth_code,
             'redirect_uri': REDIRECT_URI
         }
-
+        auth_header = base64.urlsafe_b64encode((CLIENT_ID + ':' + CLIENT_SECRET).encode('ascii'))
         headers = {
-        'Authorization': 'Basic ' + CLIENT_SECRET + ":" + CLIENT_ID,
-        'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic %s' % auth_header.decode('ascii')
         }
 
         resp = requests.post(endpoint, params=params, headers=headers)
-        return resp
+        data = json.loads(resp.text)
+        return data['access_token']
     
     def get_user_data(access_token):
         endpoint = BASE_URL + 'me/'
