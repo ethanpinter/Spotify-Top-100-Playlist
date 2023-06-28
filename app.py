@@ -1,4 +1,12 @@
+'''
+app.py
 
+Flask server for handling OAuth2 requests
+
+@ethanpinter
+'''
+
+# imports 
 from flask import Flask, request
 import logger
 

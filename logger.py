@@ -1,5 +1,13 @@
 from pprint import pprint
 
+'''
+logger.py
+
+# Wrapper class for app.py to log HTTP requests/responses
+
+@ethanpinter
+'''
+
 class Logger(object):
     def __init__(self, app):
         self._app = app

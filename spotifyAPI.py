@@ -25,27 +25,11 @@ AUTH_URL = "https://accounts.spotify.com/authorize?"
 BASE_URL = "https://api.spotify.com/v1/"
 
 class spotifyAPI:
-    '''
-    ## this is for client creds only, which cannot acces user information
-    def get_access_token():
-        
-        description: requests an auth code for use in retrieving access token
-        returns: (string) access_token: the access token used for all authenticated requests
-        
-        auth_response = requests.post(AUTH_URL, {
-            'grant_type': 'client_credentials',
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET,
-        })
-
-        # convert the response to JSON
-        auth_response_data = auth_response.json()
-
-        # save the access token
-        access_token = auth_response_data['access_token']
-        return access_token
-    '''
     def request_user_auth():
+        '''
+        # Gets user authentication through Spotify Web login
+        :returns: string - authorization code for user
+        '''
         chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe %s"
         params  = {
             'client_id': CLIENT_ID,
@@ -55,9 +39,6 @@ class spotifyAPI:
         }
         url = AUTH_URL + urlencode(params)
         webbrowser.get(chrome_path).open(url)      
-        ## read log logic goes here, return auth code
-        # read log file then delete when finished
-        #os.system("taskkill /im chrome.exe /f")
         line = linecache.getline('request.data', 7)
         os.remove('response.data')
         os.remove('request.data')
@@ -66,6 +47,11 @@ class spotifyAPI:
         return auth_code[5:-3]
         
     def get_access_token(auth_code):
+        '''
+        # Exchange authorization code for access token
+        :param auth_code: string - the authorization code for the user provided from request_user_auth()
+        :returns: string - access token for user
+        '''
         endpoint = TOKEN_URL
         params = {
             'grant_type': 'authorization_code',
@@ -83,23 +69,33 @@ class spotifyAPI:
         return data['access_token']
     
     def get_user_data(access_token):
+        '''
+        # Retrieves information about the user based on the access token
+        :param access_token: string - the access token for the user
+        :returns: json dict() object - user information
+        '''
         endpoint = BASE_URL + 'me/'
         headers = {
             'Authorization': 'Bearer {token}'.format(token=access_token)
         }
         resp = requests.get(endpoint, headers=headers)
-        resp_data = resp.json()
-        #user_id = resp['display_name']
-        return resp_data
+        data = json.loads(resp.text)
+        return data
     
     def get_artist_data(artist_ID, access_token):
+        '''
+        # Retrieves information about an artist
+        :param artist_ID: the UUID of the artist
+        :param access_token: string - the access token for the user
+        :returns: json dict() object - artist information
+        '''
         endpoint = BASE_URL + 'artists/' + artist_ID
         headers = {
             'Authorization': 'Bearer {token}'.format(token=access_token)
         }
         resp = requests.get(endpoint, headers=headers)
-        resp_data = resp.json()
-        return resp_data
+        data = json.loads(resp.text)
+        return data
 
     def create_playlist():
         ## TO-DO
