@@ -17,8 +17,8 @@ import linecache
 import os
 
 # globals
-CLIENT_ID = secret.get('CLIENT_ID')
-CLIENT_SECRET = secret.get('CLIENT_SECRET')
+SPOTIFY_CLIENT_ID = secret.get('SPOTIFY_CLIENT_ID')
+SPOTIFY_CLIENT_SECRET = secret.get('SPOTIFY_CLIENT_SECRET')
 REDIRECT_URI = "http://localhost:3000/callback"
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 AUTH_URL = "https://accounts.spotify.com/authorize?"
