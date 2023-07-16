@@ -15,6 +15,7 @@ import base64
 import json
 import linecache
 import os
+import urllib.parse
 
 # globals
 SPOTIFY_CLIENT_ID = secret.get('SPOTIFY_CLIENT_ID')
@@ -32,7 +33,7 @@ class spotifyAPI:
         '''
         chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe %s"
         params  = {
-            'client_id': CLIENT_ID,
+            'client_id': SPOTIFY_CLIENT_ID,
             'response_type': 'code',
             'redirect_uri': REDIRECT_URI,
             'scope': 'user-read-private'
@@ -58,7 +59,7 @@ class spotifyAPI:
             'code': auth_code,
             'redirect_uri': REDIRECT_URI
         }
-        auth_header = base64.urlsafe_b64encode((CLIENT_ID + ':' + CLIENT_SECRET).encode('ascii'))
+        auth_header = base64.urlsafe_b64encode((SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).encode('ascii'))
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic %s' % auth_header.decode('ascii')
@@ -96,6 +97,29 @@ class spotifyAPI:
         resp = requests.get(endpoint, headers=headers)
         data = json.loads(resp.text)
         return data
+    
+    def get_track_id_by_name(track_name, access_token):
+        '''
+        take either one or many
+        '''
+        results = []
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=access_token)
+        }
+        track_name_safe = urllib.parse.quote(track_name)
+        endpoint = BASE_URL + 'search' + f'?q=track%3A{track_name_safe}&type=track&market=US&limit=1&offset=0'
+        try:
+            resp = requests.get(endpoint, headers=headers)
+            resp = json.loads(resp.text)
+            filtered = resp['tracks']
+            filtered1 = filtered['items']
+            filtered2 = filtered1[0]
+            results.append(filtered2['uri'])
+            #results.append(filtered2['name'])
+        except:
+            print(f'Errored on song: {track_name}')
+            print(f"here's the response: {filtered}")
+        return results
 
     def create_playlist():
         ## TO-DO
