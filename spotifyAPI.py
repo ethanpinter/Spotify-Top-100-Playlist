@@ -122,8 +122,8 @@ class spotifyAPI:
         return results
 
     def create_playlist(access_token):
-        endpoint = BASE_URL + 'users/ethan_pinter/playlists'
         
+        endpoint = BASE_URL + 'users/ethan_pinter/playlists'
         data = json.dumps({
             "name": "Top 100 Recent",
             "description": "Top 100 recent songs listed in order and auto-updated by a script I wrote (https://github.com/ethanpinter/Spotify-Top-100-Playlist)"
@@ -134,6 +134,20 @@ class spotifyAPI:
             'Content-Type': 'application/json'
         }
         resp = requests.post(endpoint, headers = headers, data = data)
-        return resp.text
+        resp = json.loads(resp.text)
+        return resp['uri']
     
-    
+    def add_track_to_playlist(track_id, playlist_id, access_token):
+        playlist_id_safe = playlist_id[17:]
+        endpoint = BASE_URL + f'playlists/{playlist_id_safe}/tracks'
+        data = json.dumps({
+            "uris": [
+                f"{track_id}"
+                ]
+            })
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=access_token),
+            'Content-Type': 'application/json'
+        }
+        resp = requests.post(endpoint, headers = headers, data = data)
+        return resp
