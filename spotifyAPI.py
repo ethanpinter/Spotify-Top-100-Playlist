@@ -36,7 +36,7 @@ class spotifyAPI:
             'client_id': SPOTIFY_CLIENT_ID,
             'response_type': 'code',
             'redirect_uri': REDIRECT_URI,
-            'scope': 'user-read-private playlist-modify-public playlist-modify-private'
+            'scope': 'user-read-private playlist-modify-public playlist-modify-private user-top-read'
         }
         url = AUTH_URL + urlencode(params)
         webbrowser.get(chrome_path).open(url)      
@@ -98,9 +98,21 @@ class spotifyAPI:
         data = json.loads(resp.text)
         return data
     
+    def get_spotify_top_tracks(access_token):
+        endpoint = BASE_URL + 'me/top/tracks?limit=50'
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=access_token)
+        }
+        resp = requests.get(endpoint, headers = headers)
+        resp = json.loads(resp.text)
+        return resp
+    
     def get_track_id_by_name(track_name, access_token):
         '''
-        take either one or many
+        take a track, get info from spotify and save as json
+        compare each track result - if artist (from track_name array) matches json artist,
+        we know the track is the correct track, otherwise skip to next
+        track in saved spotify response
         '''
         results = []
         headers = {
