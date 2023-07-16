@@ -23,4 +23,7 @@ class lastfmAPI:
     def get_top_tracks(user, limit = 100):
         url = BASE_URL + f'?method=user.gettoptracks&user={user}&api_key={LASTFM_API_KEY}&format=json&limit={limit}&period=7day'
         resp = requests.get(url)
-        return json.loads(resp.content)
+        resp = json.loads(resp.text)
+        filtered = resp['toptracks']
+        filtered = filtered['track']
+        return filtered
