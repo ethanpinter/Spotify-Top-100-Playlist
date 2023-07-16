@@ -36,7 +36,7 @@ class spotifyAPI:
             'client_id': SPOTIFY_CLIENT_ID,
             'response_type': 'code',
             'redirect_uri': REDIRECT_URI,
-            'scope': 'user-read-private'
+            'scope': 'user-read-private playlist-modify-public playlist-modify-private'
         }
         url = AUTH_URL + urlencode(params)
         webbrowser.get(chrome_path).open(url)      
@@ -121,6 +121,19 @@ class spotifyAPI:
             print(f"here's the response: {filtered}")
         return results
 
-    def create_playlist():
-        ## TO-DO
-        return None
+    def create_playlist(access_token):
+        endpoint = BASE_URL + 'users/ethan_pinter/playlists'
+        
+        data = json.dumps({
+            "name": "Top 100 Recent",
+            "description": "Top 100 recent songs listed in order and auto-updated by a script I wrote (https://github.com/ethanpinter/Spotify-Top-100-Playlist)"
+            })
+    
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=access_token),
+            'Content-Type': 'application/json'
+        }
+        resp = requests.post(endpoint, headers = headers, data = data)
+        return resp.text
+    
+    
