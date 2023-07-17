@@ -19,6 +19,8 @@ BASE_URL = 'http://ws.audioscrobbler.com/2.0/'
 class lastfmAPI:
     def get_top_tracks_and_artists(user, limit = 100):
         '''
+        :param user: the username of the user
+        :param limit: Optional, the number of tracks to return
         return: dictonary with track,artist pairing
         '''
         count = 0

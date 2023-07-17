@@ -83,36 +83,11 @@ class spotifyAPI:
         data = json.loads(resp.text)
         return data
     
-    def get_artist_data(artist_ID, access_token):
-        '''
-        # Retrieves information about an artist
-        :param artist_ID: the UUID of the artist
-        :param access_token: string - the access token for the user
-        :returns: json dict() object - artist information
-        '''
-        endpoint = BASE_URL + 'artists/' + artist_ID
-        headers = {
-            'Authorization': 'Bearer {token}'.format(token=access_token)
-        }
-        resp = requests.get(endpoint, headers=headers)
-        data = json.loads(resp.text)
-        return data
-    
-    def get_spotify_top_tracks(access_token):
-        endpoint = BASE_URL + 'me/top/tracks?limit=50'
-        headers = {
-            'Authorization': 'Bearer {token}'.format(token=access_token)
-        }
-        resp = requests.get(endpoint, headers = headers)
-        resp = json.loads(resp.text)
-        return resp
-    
     def get_track_id_by_name(tracksIDs, access_token):
         '''
-        take a track, get info from spotify and save as json
-        compare each track result - if artist (from track_name array) matches json artist,
-        we know the track is the correct track, otherwise skip to next
-        track in saved spotify response
+        # Get the spotify ID of a track
+        :param trackIDs: 2D dictionary containing track name, artist name pairs
+        :param access_token: string - the access token for the user
         '''
         results = []
         headers = {
@@ -139,7 +114,10 @@ class spotifyAPI:
         return results
 
     def create_playlist(access_token):
-        
+        '''
+        # Create a new playlist on Spotify
+        :param access_token: string - the access token for the user
+        '''
         endpoint = BASE_URL + 'users/ethan_pinter/playlists'
         data = json.dumps({
             "name": "Top 100 Recent",
@@ -153,8 +131,14 @@ class spotifyAPI:
         resp = requests.post(endpoint, headers = headers, data = data)
         resp = json.loads(resp.text)
         return resp['uri']
-    
+
     def add_track_to_playlist(track_id, playlist_id, access_token):
+        '''
+        # Add a track to a playlist
+        :param track_id: Spotify ID of a track
+        :param playlist_id: Playlist ID given when creating playlist
+        :param access_token: string - the access token for the user
+        '''
         playlist_id_safe = playlist_id[17:]
         endpoint = BASE_URL + f'playlists/{playlist_id_safe}/tracks'
         data = json.dumps({
