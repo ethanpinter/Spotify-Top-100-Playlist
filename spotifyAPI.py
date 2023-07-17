@@ -16,6 +16,7 @@ import json
 import linecache
 import os
 import urllib.parse
+import random
 
 # globals
 SPOTIFY_CLIENT_ID = secret.get('SPOTIFY_CLIENT_ID')
@@ -36,7 +37,7 @@ class spotifyAPI:
             'client_id': SPOTIFY_CLIENT_ID,
             'response_type': 'code',
             'redirect_uri': REDIRECT_URI,
-            'scope': 'user-read-private playlist-modify-public playlist-modify-private user-top-read'
+            'scope': 'user-read-private playlist-modify-public playlist-modify-private user-top-read ugc-image-upload'
         }
         url = AUTH_URL + urlencode(params)
         webbrowser.get(chrome_path).open(url)      
@@ -68,20 +69,6 @@ class spotifyAPI:
         resp = requests.post(endpoint, params=params, headers=headers)
         data = json.loads(resp.text)
         return data['access_token']
-    
-    def get_user_data(access_token):
-        '''
-        # Retrieves information about the user based on the access token
-        :param access_token: string - the access token for the user
-        :returns: json dict() object - user information
-        '''
-        endpoint = BASE_URL + 'me/'
-        headers = {
-            'Authorization': 'Bearer {token}'.format(token=access_token)
-        }
-        resp = requests.get(endpoint, headers=headers)
-        data = json.loads(resp.text)
-        return data
     
     def get_track_id_by_name(tracksIDs, access_token):
         '''
@@ -149,4 +136,26 @@ class spotifyAPI:
             'Content-Type': 'application/json'
         }
         requests.post(endpoint, headers = headers, data = data)
+    
+    def set_playlist_cover(playlist_id, access_token):
+        '''
+        # Set the playlist cover image based on a random image collection
+        :param playlist_id: the Spotify ID of the playlist
+        :param access_token: authorized user access token
+        :return: None
+        '''
+        playlist_id_safe = playlist_id[17:]
+        number_of_imgs = len(os.listdir('playlistCovers'))
+        imageIndex = random.randint(1, number_of_imgs)
+        file = f'playlistCovers/{imageIndex}.jpg'
+        with open(file, "rb") as f:
+            data = f.read()
+            encoded = base64.b64encode(data)
+        headers = {
+            'Authorization': 'Bearer {token}'.format(token=access_token),
+            'Content-Type': 'application/json'
+        }
+        data = encoded
+        endpoint = BASE_URL + f'playlists/{playlist_id_safe}/images'
+        resp = requests.put(endpoint, headers = headers, data=data)
         
