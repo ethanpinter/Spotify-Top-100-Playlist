@@ -5,4 +5,4 @@
 
 ## Requirements
 - Create a folder titled playlistCovers and populate with jpg file titled 1.jpg, 2.jpg, etc.
-- Start the Flask server (app.py) in a seperate terminal before running the main script (LastifyTop100)
+- Start the Flask server (app.py) in a separate terminal before running the main script (LastifyTop100)
