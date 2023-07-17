@@ -107,7 +107,7 @@ class spotifyAPI:
         resp = json.loads(resp.text)
         return resp
     
-    def get_track_id_by_name(track_name, access_token):
+    def get_track_id_by_name(tracksIDs, access_token):
         '''
         take a track, get info from spotify and save as json
         compare each track result - if artist (from track_name array) matches json artist,
@@ -118,19 +118,24 @@ class spotifyAPI:
         headers = {
             'Authorization': 'Bearer {token}'.format(token=access_token)
         }
-        track_name_safe = urllib.parse.quote(track_name)
-        endpoint = BASE_URL + 'search' + f'?q=track%3A{track_name_safe}&type=track&market=US&limit=1&offset=0'
-        try:
-            resp = requests.get(endpoint, headers=headers)
-            resp = json.loads(resp.text)
-            filtered = resp['tracks']
-            filtered1 = filtered['items']
-            filtered2 = filtered1[0]
-            results.append(filtered2['uri'])
-            #results.append(filtered2['name'])
-        except:
-            print(f'Errored on song: {track_name}')
-            print(f"here's the response: {filtered}")
+        count = 0
+        while count <= 99:
+            trackSafe = urllib.parse.quote(tracksIDs[count][0])
+            artistSafe = urllib.parse.quote(tracksIDs[count][1])
+            if trackSafe.__contains__("'"):
+                trackSafe.replace("'", '%27')
+            if artistSafe.__contains__("'"):
+                artistSafe.replace("'", '%27')
+            endpoint = BASE_URL + f'search?q=track%3A{trackSafe}%20artist%3A{artistSafe}&type=track&limit=1&offset=0'
+            try:
+                resp = requests.get(endpoint, headers=headers)
+                respJson = json.loads(resp.text)
+                filtered = respJson['tracks']['items'][0]['uri']
+                results.append(filtered)
+            except:
+                print(f'Errored on song: {tracksIDs[count][0]}')
+                print(respJson['tracks']['items'])
+            count += 1
         return results
 
     def create_playlist(access_token):
@@ -153,13 +158,11 @@ class spotifyAPI:
         playlist_id_safe = playlist_id[17:]
         endpoint = BASE_URL + f'playlists/{playlist_id_safe}/tracks'
         data = json.dumps({
-            "uris": [
-                f"{track_id}"
-                ]
+            "uris": [f'{track_id}']
             })
         headers = {
             'Authorization': 'Bearer {token}'.format(token=access_token),
             'Content-Type': 'application/json'
         }
-        resp = requests.post(endpoint, headers = headers, data = data)
-        return resp
+        requests.post(endpoint, headers = headers, data = data)
+        
