@@ -26,8 +26,7 @@ def main():
     for track in tracksIDs:
         sa.spotifyAPI.add_track_to_playlist(track, playlist_id, access_token)
     ## modify playlist cover
-    ## TO-DO
-    print(sa.spotifyAPI.set_playlist_cover(playlist_id,access_token))
+    sa.spotifyAPI.set_playlist_cover(playlist_id,access_token)
 
 if __name__ == '__main__':
     main()

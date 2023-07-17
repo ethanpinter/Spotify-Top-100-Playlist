@@ -138,9 +138,12 @@ class spotifyAPI:
         requests.post(endpoint, headers = headers, data = data)
     
     def set_playlist_cover(playlist_id, access_token):
-        # get then number on images in folder
-        # select a random number between 0 and length of folder
-        # get the filename of the image at the random index
+        '''
+        # Set the playlist cover image based on a random image collection
+        :param playlist_id: the Spotify ID of the playlist
+        :param access_token: authorized user access token
+        :return: None
+        '''
         playlist_id_safe = playlist_id[17:]
         number_of_imgs = len(os.listdir('playlistCovers'))
         imageIndex = random.randint(1, number_of_imgs)
@@ -155,4 +158,4 @@ class spotifyAPI:
         data = encoded
         endpoint = BASE_URL + f'playlists/{playlist_id_safe}/images'
         resp = requests.put(endpoint, headers = headers, data=data)
-        return resp.text
+        
