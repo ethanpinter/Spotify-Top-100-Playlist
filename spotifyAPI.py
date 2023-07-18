@@ -108,12 +108,13 @@ class spotifyAPI:
         endpoint = BASE_URL + 'users/ethan_pinter/playlists'
         data = json.dumps({
             "name": "Top 100 Recent",
-            "description": "Top 100 recent songs listed in order and auto-updated by a script I wrote (https://github.com/ethanpinter/Spotify-Top-100-Playlist)"
+            "description": "Top 100 monthly songs listed in order of popularity and auto-updated by a script I wrote (https://github.com/ethanpinter/Spotify-Top-100-Playlist)"
             })
     
         headers = {
             'Authorization': 'Bearer {token}'.format(token=access_token),
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36'
         }
         resp = requests.post(endpoint, headers = headers, data = data)
         resp = json.loads(resp.text)

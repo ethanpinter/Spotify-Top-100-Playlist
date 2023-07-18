@@ -25,7 +25,7 @@ class lastfmAPI:
         '''
         count = 0
         tracks_artists = []
-        url = BASE_URL + f'?method=user.gettoptracks&user={user}&api_key={LASTFM_API_KEY}&format=json&limit={limit}&period=7day'
+        url = BASE_URL + f'?method=user.gettoptracks&user={user}&api_key={LASTFM_API_KEY}&format=json&limit={limit}&period=1month'
         resp = requests.get(url)
         resp = json.loads(resp.text)
         while count <= 99:
