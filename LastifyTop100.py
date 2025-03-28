@@ -15,12 +15,16 @@ from lastfmAPI import lastfmAPI
 import json
 
 def main():
-
+    # set retcode
+    retcode = 0
     
-
     # grab secrets
-    with open('secret.json') as f:
-        secret = json.load(f)
+    try:
+        with open('secret.json') as f:
+            secret = json.load(f)
+    except Exception as ex:
+        retcode = 1
+        print(f"Caught exception opening secret.json: {ex}")
 
     # init classes
     spotify = spotifyAPI()
@@ -28,29 +32,40 @@ def main():
 
     # user auth flow, check if we have done interactive auth for this user
     # if we have, we can refresh their access token instead of redoing interactive auth through a web browser
-    if secret.get('SPOTIFY_ACCESS_TOKEN', '') != 'none':
-        access_token = spotify.get_refreshed_access_token(secret.get('SPOTIFY_REFRESH_TOKEN', ''))
-    else:
-        auth_code = spotify.request_user_interactive_auth()
-        access_token, refresh_token = spotify.get_access_token(auth_code)
-        secret['SPOTIFY_ACCESS_TOKEN'] = access_token
-        secret['SPOTIFY_REFRESH_TOKEN'] = refresh_token
-        with open('secret.json', 'w') as f:
-            json.dump(secret, f)
+    try:
+        if secret.get('SPOTIFY_ACCESS_TOKEN', '') != 'none':
+            access_token = spotify.get_refreshed_access_token(secret.get('SPOTIFY_REFRESH_TOKEN', ''))
+        else:
+            auth_code = spotify.request_user_interactive_auth()
+            access_token, refresh_token = spotify.get_access_token(auth_code)
+            secret['SPOTIFY_ACCESS_TOKEN'] = access_token
+            secret['SPOTIFY_REFRESH_TOKEN'] = refresh_token
+            with open('secret.json', 'w') as f:
+                json.dump(secret, f)
+    except Exception as ex:
+        retcode = 1
+        print(f"Caught exception authenticating with Spotify: {ex}")
 
-    ## get tracks from lastFM
-    tracksArtists = last.get_top_tracks_and_artists('ethanpinter')
+    try:
+        ## get tracks from lastFM
+        tracksArtists = last.get_top_tracks_and_artists('ethanpinter')
 
-    ## get the spotify ids for songs
-    tracksIDs = spotify.get_track_id_by_name(tracksArtists, access_token)
+        ## get the spotify ids for songs
+        tracksIDs = spotify.get_track_id_by_name(tracksArtists, access_token)
 
-    ## create a playlist and add songs to it
-    playlist_id = spotify.create_playlist(access_token)
-    for track in tracksIDs:
-        spotify.add_track_to_playlist(track, playlist_id, access_token)
+        ## create a playlist and add songs to it
+        playlist_id = spotify.create_playlist(access_token)
+        for track in tracksIDs:
+            spotify.add_track_to_playlist(track, playlist_id, access_token)
 
-    ## modify playlist cover
-    #spotify.set_playlist_cover(playlist_id,access_token)
+        ## modify playlist cover
+        #spotify.set_playlist_cover(playlist_id,access_token)
+    except Exception as ex:
+        retcode = 1
+        print(f"Caught exception creating playlist: {ex}")
+
+    print(f"End of Script, retcode: {retcode}")
+    exit(retcode)
 
 if __name__ == '__main__':
     main()
