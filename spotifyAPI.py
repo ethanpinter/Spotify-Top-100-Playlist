@@ -18,28 +18,29 @@ import os
 import urllib.parse
 import random
 
-# globals
-SPOTIFY_CLIENT_ID = secret.get('SPOTIFY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET = secret.get('SPOTIFY_CLIENT_SECRET')
-REDIRECT_URI = "http://localhost:3000/callback"
-TOKEN_URL = "https://accounts.spotify.com/api/token"
-AUTH_URL = "https://accounts.spotify.com/authorize?"
-BASE_URL = "https://api.spotify.com/v1/"
-
 class spotifyAPI:
-    def request_user_auth():
+
+    def __init__(self):
+        self.SPOTIFY_CLIENT_ID = secret.get('SPOTIFY_CLIENT_ID')
+        self.SPOTIFY_CLIENT_SECRET = secret.get('SPOTIFY_CLIENT_SECRET')
+        self.REDIRECT_URI = "http://localhost:3000/callback"
+        self.TOKEN_URL = "https://accounts.spotify.com/api/token"
+        self.AUTH_URL = "https://accounts.spotify.com/authorize?"
+        self.BASE_URL = "https://api.spotify.com/v1/"
+
+    def request_user_auth(self):
         '''
         # Gets user authentication through Spotify Web login
         :returns: string - authorization code for user
         '''
         chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe %s"
         params  = {
-            'client_id': SPOTIFY_CLIENT_ID,
+            'client_id': self.SPOTIFY_CLIENT_ID,
             'response_type': 'code',
-            'redirect_uri': REDIRECT_URI,
+            'redirect_uri': self.REDIRECT_URI,
             'scope': 'user-read-private playlist-modify-public playlist-modify-private user-top-read ugc-image-upload'
         }
-        url = AUTH_URL + urlencode(params)
+        url = self.AUTH_URL + urlencode(params)
         webbrowser.get(chrome_path).open(url)      
         line = linecache.getline('request.data', 7)
         os.remove('response.data')
@@ -48,19 +49,19 @@ class spotifyAPI:
         auth_code = split[1]
         return auth_code[5:-3]
         
-    def get_access_token(auth_code):
+    def get_access_token(self, auth_code):
         '''
         # Exchange authorization code for access token
         :param auth_code: string - the authorization code for the user provided from request_user_auth()
         :returns: string - access token for user
         '''
-        endpoint = TOKEN_URL
+        endpoint = self.TOKEN_URL
         params = {
             'grant_type': 'authorization_code',
             'code': auth_code,
-            'redirect_uri': REDIRECT_URI
+            'redirect_uri': self.REDIRECT_URI
         }
-        auth_header = base64.urlsafe_b64encode((SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).encode('ascii'))
+        auth_header = base64.urlsafe_b64encode((self.SPOTIFY_CLIENT_ID + ':' + self.SPOTIFY_CLIENT_SECRET).encode('ascii'))
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'Basic %s' % auth_header.decode('ascii')
@@ -70,7 +71,7 @@ class spotifyAPI:
         data = json.loads(resp.text)
         return data['access_token']
     
-    def get_track_id_by_name(tracksIDs, access_token):
+    def get_track_id_by_name(self, tracksIDs, access_token):
         '''
         # Get the spotify ID of a track
         :param trackIDs: 2D dictionary containing track name, artist name pairs
@@ -88,7 +89,7 @@ class spotifyAPI:
                 trackSafe.replace("'", '%27')
             if artistSafe.__contains__("'"):
                 artistSafe.replace("'", '%27')
-            endpoint = BASE_URL + f'search?q=track%3A{trackSafe}%20artist%3A{artistSafe}&type=track&limit=1&offset=0'
+            endpoint = self.BASE_URL + f'search?q=track%3A{trackSafe}%20artist%3A{artistSafe}&type=track&limit=1&offset=0'
             try:
                 resp = requests.get(endpoint, headers=headers)
                 respJson = json.loads(resp.text)
@@ -100,12 +101,12 @@ class spotifyAPI:
             count += 1
         return results
 
-    def create_playlist(access_token):
+    def create_playlist(self, access_token):
         '''
         # Create a new playlist on Spotify
         :param access_token: string - the access token for the user
         '''
-        endpoint = BASE_URL + 'users/ethan_pinter/playlists'
+        endpoint = self.BASE_URL + 'users/ethan_pinter/playlists'
         data = json.dumps({
             "name": "Top 100 Recent",
             "description": "Top 100 monthly songs listed in order of popularity and auto-updated by a script I wrote (https://github.com/ethanpinter/Spotify-Top-100-Playlist)"
@@ -120,7 +121,7 @@ class spotifyAPI:
         resp = json.loads(resp.text)
         return resp['uri']
 
-    def add_track_to_playlist(track_id, playlist_id, access_token):
+    def add_track_to_playlist(self, track_id, playlist_id, access_token):
         '''
         # Add a track to a playlist
         :param track_id: Spotify ID of a track
@@ -128,7 +129,7 @@ class spotifyAPI:
         :param access_token: string - the access token for the user
         '''
         playlist_id_safe = playlist_id[17:]
-        endpoint = BASE_URL + f'playlists/{playlist_id_safe}/tracks'
+        endpoint = self.BASE_URL + f'playlists/{playlist_id_safe}/tracks'
         data = json.dumps({
             "uris": [f'{track_id}']
             })
@@ -138,7 +139,7 @@ class spotifyAPI:
         }
         requests.post(endpoint, headers = headers, data = data)
     
-    def set_playlist_cover(playlist_id, access_token):
+    def set_playlist_cover(self, playlist_id, access_token):
         '''
         # Set the playlist cover image based on a random image collection
         :param playlist_id: the Spotify ID of the playlist
@@ -157,6 +158,6 @@ class spotifyAPI:
             'Content-Type': 'application/json'
         }
         data = encoded
-        endpoint = BASE_URL + f'playlists/{playlist_id_safe}/images'
+        endpoint = self.BASE_URL + f'playlists/{playlist_id_safe}/images'
         resp = requests.put(endpoint, headers = headers, data=data)
         

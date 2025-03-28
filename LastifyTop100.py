@@ -10,23 +10,31 @@ LastifyTop100.py
 ## make sure to start the Flask server first
 
 # imports
-import spotifyAPI as sa
-import lastfmAPI as last
+from spotifyAPI import spotifyAPI
+from lastfmAPI import lastfmAPI
 
-def main():   
-    ## auth
-    auth_code = sa.spotifyAPI.request_user_auth()
-    access_token = sa.spotifyAPI.get_access_token(auth_code)
+def main():
+    # init
+    spotify = spotifyAPI()
+    last = lastfmAPI()
+
+    # auth
+    auth_code = spotify.request_user_auth()
+    access_token = spotify.get_access_token(auth_code)
+
     ## get tracks from last
-    tracksArtists = last.lastfmAPI.get_top_tracks_and_artists('ethanpinter')
+    tracksArtists = last.get_top_tracks_and_artists('ethanpinter')
+
     ## get the spotify ids for songs
-    tracksIDs = sa.spotifyAPI.get_track_id_by_name(tracksArtists, access_token)
+    tracksIDs = spotify.get_track_id_by_name(tracksArtists, access_token)
+
     ## create a playlist and add songs to it
-    playlist_id = sa.spotifyAPI.create_playlist(access_token)
+    playlist_id = spotify.create_playlist(access_token)
     for track in tracksIDs:
-        sa.spotifyAPI.add_track_to_playlist(track, playlist_id, access_token)
+        spotify.add_track_to_playlist(track, playlist_id, access_token)
+
     ## modify playlist cover
-    #pytsa.spotifyAPI.set_playlist_cover(playlist_id,access_token)
+    #spotify.set_playlist_cover(playlist_id,access_token)
 
 if __name__ == '__main__':
     main()

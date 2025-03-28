@@ -11,13 +11,14 @@ import requests
 from secret import secret
 import json
 
-# globals
-LASTFM_API_KEY = secret.get('LASTFM_API_KEY')
-LASTFM_SECRET = secret.get('LASTFM_SECRET')
-BASE_URL = 'http://ws.audioscrobbler.com/2.0/'
-
 class lastfmAPI:
-    def get_top_tracks_and_artists(user, limit = 100):
+
+    def __init__(self):
+        self.LASTFM_API_KEY = secret.get('LASTFM_API_KEY')
+        self.LASTFM_SECRET = secret.get('LASTFM_SECRET')
+        self.BASE_URL = 'http://ws.audioscrobbler.com/2.0/'
+
+    def get_top_tracks_and_artists(self, user, limit = 100):
         '''
         :param user: the username of the user
         :param limit: Optional, the number of tracks to return
@@ -25,7 +26,7 @@ class lastfmAPI:
         '''
         count = 0
         tracks_artists = []
-        url = BASE_URL + f'?method=user.gettoptracks&user={user}&api_key={LASTFM_API_KEY}&format=json&limit={limit}&period=1month'
+        url = self.BASE_URL + f'?method=user.gettoptracks&user={user}&api_key={self.LASTFM_API_KEY}&format=json&limit={limit}&period=1month'
         resp = requests.get(url)
         resp = json.loads(resp.text)
         while count <= 99:
