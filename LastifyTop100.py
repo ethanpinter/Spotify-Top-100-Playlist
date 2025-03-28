@@ -7,22 +7,38 @@ LastifyTop100.py
 @ethanpinter
 '''
 
-## make sure to start the Flask server first
+## Make sure to start the Flask server first!
 
 # imports
 from spotifyAPI import spotifyAPI
 from lastfmAPI import lastfmAPI
+import json
 
 def main():
-    # init
+
+    
+
+    # grab secrets
+    with open('secret.json') as f:
+        secret = json.load(f)
+
+    # init classes
     spotify = spotifyAPI()
     last = lastfmAPI()
 
-    # auth
-    auth_code = spotify.request_user_auth()
-    access_token = spotify.get_access_token(auth_code)
+    # user auth flow, check if we have done interactive auth for this user
+    # if we have, we can refresh their access token instead of redoing interactive auth through a web browser
+    if secret.get('SPOTIFY_ACCESS_TOKEN', '') != 'none':
+        access_token = spotify.get_refreshed_access_token(secret.get('SPOTIFY_REFRESH_TOKEN', ''))
+    else:
+        auth_code = spotify.request_user_interactive_auth()
+        access_token, refresh_token = spotify.get_access_token(auth_code)
+        secret['SPOTIFY_ACCESS_TOKEN'] = access_token
+        secret['SPOTIFY_REFRESH_TOKEN'] = refresh_token
+        with open('secret.json', 'w') as f:
+            json.dump(secret, f)
 
-    ## get tracks from last
+    ## get tracks from lastFM
     tracksArtists = last.get_top_tracks_and_artists('ethanpinter')
 
     ## get the spotify ids for songs
