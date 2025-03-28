@@ -8,12 +8,16 @@ Library script for interacting with Last.fm data
 
 # imports
 import requests
-from secret import secret
 import json
 
 class lastfmAPI:
 
     def __init__(self):
+        
+        # grab secrets
+        with open('secret.json') as f:
+            secret = json.load(f)
+
         self.LASTFM_API_KEY = secret.get('LASTFM_API_KEY')
         self.LASTFM_SECRET = secret.get('LASTFM_SECRET')
         self.BASE_URL = 'http://ws.audioscrobbler.com/2.0/'

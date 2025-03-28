@@ -8,7 +8,7 @@ Library script for interacting with Spotify data
 
 # imports
 import requests
-from secret import secret
+#from secret import secret
 from urllib.parse import urlencode
 import webbrowser
 import base64
@@ -21,6 +21,11 @@ import random
 class spotifyAPI:
 
     def __init__(self):
+
+        # grab secrets
+        with open('secret.json') as f:
+            secret = json.load(f)
+
         self.SPOTIFY_CLIENT_ID = secret.get('SPOTIFY_CLIENT_ID')
         self.SPOTIFY_CLIENT_SECRET = secret.get('SPOTIFY_CLIENT_SECRET')
         self.REDIRECT_URI = "http://localhost:3000/callback"
@@ -28,7 +33,7 @@ class spotifyAPI:
         self.AUTH_URL = "https://accounts.spotify.com/authorize?"
         self.BASE_URL = "https://api.spotify.com/v1/"
 
-    def request_user_auth(self):
+    def request_user_interactive_auth(self):
         '''
         # Gets user authentication through Spotify Web login
         :returns: string - authorization code for user
@@ -69,8 +74,30 @@ class spotifyAPI:
 
         resp = requests.post(endpoint, params=params, headers=headers)
         data = json.loads(resp.text)
-        return data['access_token']
+        return data['access_token'], data['refresh_token']
     
+    def get_refreshed_access_token(self, refresh_token):
+        '''
+        # Refresh an access token instead of doing user interactive auth
+        :param access_token: string - access token provided during user interactive auth
+        :return access_token: string - refreshed access token
+        '''
+        endpoint = self.TOKEN_URL
+        params = {
+            'grant_type': 'refresh_token',
+            'refresh_token': refresh_token,
+        }
+        auth_header = base64.urlsafe_b64encode((self.SPOTIFY_CLIENT_ID + ':' + self.SPOTIFY_CLIENT_SECRET).encode('ascii'))
+
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic %s' % auth_header.decode('ascii')
+        }
+
+        resp = requests.post(endpoint, params=params, headers=headers)
+        data = json.loads(resp.text)
+        return data['access_token']
+
     def get_track_id_by_name(self, tracksIDs, access_token):
         '''
         # Get the spotify ID of a track

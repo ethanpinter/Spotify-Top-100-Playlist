@@ -1,4 +1,5 @@
 secret.py
+secret.json
 tests.py
 __pycache__
 request.log
