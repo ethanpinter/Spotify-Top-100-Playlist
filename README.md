@@ -15,4 +15,4 @@
     "LASTFM_SECRET" : "<your-lastfm-secret>",
     "SPOTIFY_ACCESS_TOKEN" : "none",
     "SPOTIFY_REFRESH_TOKEN" : "none"
-}```
+}
