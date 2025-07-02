@@ -136,7 +136,7 @@ class spotifyAPI:
         endpoint = self.BASE_URL + 'users/ethan_pinter/playlists'
         data = json.dumps({
             "name": "Top 100 Recent",
-            "description": "Top 100 monthly songs listed in order of popularity and auto-updated by a script I wrote (https://github.com/ethanpinter/Spotify-Top-100-Playlist)"
+            "description": "Top 100 songs listed in order of popularity and auto-updated monthly"
             })
     
         headers = {

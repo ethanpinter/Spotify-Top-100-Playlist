@@ -55,11 +55,14 @@ def main():
 
         ## create a playlist and add songs to it
         playlist_id = spotify.create_playlist(access_token)
+        count = 0
         for track in tracksIDs:
+            track_name = tracksArtists[count][0]
+            track_artist = tracksArtists[count][1]
+            print(f"Adding track: {track_name} by {track_artist}")
             spotify.add_track_to_playlist(track, playlist_id, access_token)
+            count = count + 1
 
-        ## modify playlist cover
-        #spotify.set_playlist_cover(playlist_id,access_token)
     except Exception as ex:
         retcode = 1
         print(f"Caught exception creating playlist: {ex}")
